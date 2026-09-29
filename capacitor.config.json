@@ -1,0 +1,15 @@
+{
+  "appId": "es.rutasyrecorridos.turnos",
+  "appName": "Turnos",
+  "webDir": "www",
+  "android": {
+    "backgroundColor": "#f4f7fb",
+    "adjustMarginsForEdgeToEdge": "auto"
+  },
+  "plugins": {
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_turnos",
+      "iconColor": "#0891b2"
+    }
+  }
+}
