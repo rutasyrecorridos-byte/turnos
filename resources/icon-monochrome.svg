@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Icono temático Android 13+. Lo que está dentro de CUT se resta (queda transparente). -->
+  <g transform="translate(256,256) scale(0.74) translate(-211,-210)" fill="#fff">
+    <!--BODY-->
+    <rect x="32" y="64" width="320" height="280" rx="32" fill="none" stroke="#fff" stroke-width="16"/>
+    <path d="M32 96C32 80 44 64 64 64H320C340 64 352 80 352 96V128H32Z"/>
+    <rect x="96" y="32" width="24" height="48" rx="12"/>
+    <rect x="264" y="32" width="24" height="48" rx="12"/>
+    <rect x="60" y="176" width="48" height="48" rx="12"/><rect x="132" y="176" width="48" height="48" rx="12"/>
+    <rect x="204" y="176" width="48" height="48" rx="12"/><rect x="276" y="176" width="48" height="48" rx="12"/>
+    <rect x="60" y="248" width="48" height="48" rx="12"/><rect x="132" y="248" width="48" height="48" rx="12"/>
+    <rect x="204" y="248" width="48" height="48" rx="12"/>
+    <!--CUT1--><circle cx="340" cy="332" r="68"/><!--/CUT1-->
+    <circle cx="340" cy="332" r="56"/>
+    <!--CUT2--><path d="M314 332L332 350L366 314" fill="none" stroke="#fff" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/><!--/CUT2-->
+  </g>
+</svg>

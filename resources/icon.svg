@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+    <linearGradient id="iconGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#06b6d4"/>
+      <stop offset="100%" stop-color="#2563eb"/>
+    </linearGradient>
+  </defs>
+  <!-- Fondo -->
+  <rect width="512" height="512" rx="112" fill="url(#bgGrad)"/>
+  <!-- Ilustración (centrada ópticamente) -->
+  <g transform="translate(45,46)">
+    <!-- Base calendario -->
+    <rect x="32" y="64" width="320" height="280" rx="32" fill="#1e293b" stroke="#334155" stroke-width="12"/>
+    <!-- Cabecera -->
+    <path d="M32 96C32 80 44 64 64 64H320C340 64 352 80 352 96V128H32Z" fill="url(#iconGrad)"/>
+    <!-- Anillas -->
+    <rect x="96" y="32" width="24" height="48" rx="12" fill="#e2e8f0"/>
+    <rect x="264" y="32" width="24" height="48" rx="12" fill="#e2e8f0"/>
+    <!-- Días de turno: rejilla regular de 4 columnas (paso 72) -->
+    <rect x="60"  y="176" width="48" height="48" rx="12" fill="#0284c7"/>
+    <rect x="132" y="176" width="48" height="48" rx="12" fill="#d97706"/>
+    <rect x="204" y="176" width="48" height="48" rx="12" fill="#4f46e5"/>
+    <rect x="276" y="176" width="48" height="48" rx="12" fill="#16a34a"/>
+    <rect x="60"  y="248" width="48" height="48" rx="12" fill="#16a34a"/>
+    <rect x="132" y="248" width="48" height="48" rx="12" fill="#0284c7"/>
+    <rect x="204" y="248" width="48" height="48" rx="12" fill="#9333ea"/>
+    <!-- Insignia de confirmación, separada con anillo -->
+    <circle cx="340" cy="332" r="56" fill="#10b981" stroke="#0f172a" stroke-width="10"/>
+    <path d="M314 332L332 350L366 314" fill="none" stroke="#ffffff" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>
