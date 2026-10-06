@@ -10,6 +10,10 @@
     "LocalNotifications": {
       "smallIcon": "ic_stat_turnos",
       "iconColor": "#0891b2"
+    },
+    "Keyboard": {
+      "resize": "none",
+      "resizeOnFullScreen": true
     }
   }
 }
