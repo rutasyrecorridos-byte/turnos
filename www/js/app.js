@@ -911,25 +911,30 @@
   function bindKeyboard() {
     const root = document.documentElement;
     const vv = window.visualViewport;
-    let kbNative = -1;              // alto comunicado por Android (-1 = aún sin dato)
+    let kbNative = -1;          // alto que comunica Android (-1 = todavía sin dato)
+    let fullH = window.innerHeight;   // alto de la ventana con el teclado cerrado
 
-    const setVars = (kb) => {
-      kb = Math.max(0, Math.round(kb));
+    // Reparte el hueco: si Android ya ha encogido la ventana, no hay que
+    // descontar nada más; si no la ha encogido, lo descontamos nosotros.
+    const setVars = (reported) => {
+      const h = window.innerHeight;
+      if (reported <= 0) fullH = Math.max(fullH, h);
+      const yaEncogido = Math.max(0, fullH - h);               // lo que ya quitó Android
+      const kb = Math.max(0, Math.round(reported - yaEncogido)); // lo que falta por quitar
       root.style.setProperty('--kb', kb + 'px');
-      root.style.setProperty('--vph', Math.max(240, window.innerHeight - kb) + 'px');
-      document.body.classList.toggle('kb-open', kb > 80);
+      root.style.setProperty('--vph', Math.max(220, h - kb) + 'px');
+      document.body.classList.toggle('kb-open', (reported > 80 || yaEncogido > 80));
     };
 
-    // 1) Android: el propio sistema nos dice cuánto mide el teclado.
+    // 1) Android nos dice cuánto mide el teclado.
     const KB = plugin('Keyboard');
     if (KB && KB.addListener) {
       const onShow = (info) => {
         let h = (info && info.keyboardHeight) || 0;
-        // por si llegara en píxeles físicos en vez de lógicos
-        if (h > window.innerHeight * 0.95 && window.devicePixelRatio > 1) h = h / window.devicePixelRatio;
-        kbNative = Math.min(h, window.innerHeight * 0.75);
+        if (h > fullH * 0.95 && window.devicePixelRatio > 1) h = h / window.devicePixelRatio;
+        kbNative = Math.min(h, fullH * 0.75);
         setVars(kbNative);
-        setTimeout(centerFocused, 60);
+        setTimeout(() => { setVars(kbNative); centerFocused(); }, 120);
       };
       const onHide = () => { kbNative = 0; setVars(0); };
       try {
@@ -942,26 +947,26 @@
       try { if (KB.setAccessoryBarVisible) KB.setAccessoryBarVisible({ isVisible: false }); } catch (e) { }
     }
 
-    // 2) Respaldo para el navegador y para móviles que sí redimensionan la ventana.
+    // 2) Respaldo: navegador y móviles que avisan por visualViewport.
     const apply = () => {
-      if (kbNative > 0) return;                    // manda el dato de Android
-      const kb = vv ? Math.max(0, window.innerHeight - vv.height - vv.offsetTop) : 0;
-      setVars(kb);
-      if (kb > 120) centerFocused();
+      if (kbNative > 0) { setVars(kbNative); return; }
+      setVars(vv ? Math.max(0, window.innerHeight - vv.height - vv.offsetTop) : 0);
     };
     if (vv) { vv.addEventListener('resize', apply); vv.addEventListener('scroll', apply); }
     window.addEventListener('resize', apply);
     apply();
 
-    // 3) Último recurso: si el teclado está abierto y nadie nos lo ha dicho,
-    //    reservamos sitio al enfocar un campo dentro de la hoja.
+    // 3) Último recurso: nadie avisa y la ventana no cambia de tamaño.
     let focusTimer;
     document.addEventListener('focusin', (e) => {
       const el = e.target;
       if (!el || !el.matches || !el.matches('input, textarea, select')) return;
-      if (kbNative < 0 && (!vv || Math.abs(vv.height - window.innerHeight) < 40)) {
-        setVars(Math.round(window.innerHeight * 0.46));   // altura típica de un teclado
-      }
+      setTimeout(() => {
+        const sinNoticias = kbNative < 0 &&
+          Math.abs(window.innerHeight - fullH) < 40 &&
+          (!vv || Math.abs(vv.height - window.innerHeight) < 40);
+        if (sinNoticias) { setVars(Math.round(fullH * 0.46)); setTimeout(centerFocused, 80); }
+      }, 450);
       clearTimeout(focusTimer);
       focusTimer = setTimeout(centerFocused, 300);
     });
@@ -970,7 +975,7 @@
       focusTimer = setTimeout(() => {
         const a = document.activeElement;
         if (a && a.matches && a.matches('input, textarea, select')) return;
-        if (kbNative <= 0) setVars(vv ? Math.max(0, window.innerHeight - vv.height - vv.offsetTop) : 0);
+        if (kbNative <= 0) apply();
       }, 250);
     });
   }
