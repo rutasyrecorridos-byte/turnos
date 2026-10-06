@@ -46,8 +46,12 @@ for (const p of perms) {
     manifest = manifest.replace('</manifest>', `    ${p}\n</manifest>`);
   }
 }
+// La actividad debe reajustarse al abrir el teclado
+if (!manifest.includes('windowSoftInputMode')) {
+  manifest = manifest.replace(/(<activity\b[^>]*?)(\s*>)/, '$1\n            android:windowSoftInputMode="adjustResize"$2');
+}
 fs.writeFileSync(manifestPath, manifest);
-console.log('✔ Permisos añadidos al AndroidManifest');
+console.log('✔ Permisos y teclado ajustados en el AndroidManifest');
 
 // 3) Versión
 const gradlePath = path.join(appDir, 'build.gradle');
