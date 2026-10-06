@@ -15,6 +15,8 @@
   --tabbar-h: 64px;
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --kb: 0px;          /* alto del teclado en pantalla */
+  --vph: 100vh;       /* alto visible real (sin teclado) */
   color-scheme: light;
 }
 
@@ -251,10 +253,13 @@ textarea.input { resize: none; min-height: 84px; }
 .sheet-backdrop { position: fixed; inset: 0; z-index: 50; background: rgba(15,23,42,.35); display: flex; align-items: flex-end; justify-content: center; animation: fade .15s; }
 .sheet {
   box-shadow: 0 -10px 30px rgba(15,23,42,.15);
-  width: 100%; max-width: 640px; max-height: 92vh; overflow-y: auto;
+  position: relative; bottom: var(--kb);
+  width: 100%; max-width: 640px; max-height: calc(var(--vph) - 16px); overflow-y: auto;
+  overscroll-behavior: contain;
   background: var(--surface); border: 1px solid var(--border); border-bottom: 0;
   border-radius: 20px 20px 0 0;
   padding: 6px 16px calc(20px + var(--safe-bottom));
+  scroll-padding-bottom: 24px;
   animation: up .22s cubic-bezier(.2,.8,.2,1);
 }
 @keyframes up { from { transform: translateY(40px); opacity: .4; } to { transform: none; opacity: 1; } }

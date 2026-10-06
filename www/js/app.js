@@ -893,10 +893,42 @@
     $('sheetClose').addEventListener('click', closeSheet);
     $('sheetBackdrop').addEventListener('click', (e) => { if (e.target.id === 'sheetBackdrop') closeSheet(); });
 
+    // Teclado en pantalla: encoger la hoja y centrar el campo enfocado
+    bindKeyboard();
+
     // Al volver a la app: refrescar fecha y renovar alertas
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible') { renderTop(); renderCalendar(); renderAgenda(); refreshPermBox(); scheduleAll(); }
     });
+  }
+
+  // Ajusta la interfaz cuando se abre el teclado del móvil, para que el campo
+  // en el que se escribe no quede tapado.
+  function bindKeyboard() {
+    const root = document.documentElement;
+    const vv = window.visualViewport;
+    const apply = () => {
+      const h = vv ? vv.height : window.innerHeight;
+      const kb = vv ? Math.max(0, window.innerHeight - vv.height - vv.offsetTop) : 0;
+      root.style.setProperty('--vph', h + 'px');
+      root.style.setProperty('--kb', kb + 'px');
+      if (kb > 120) centerFocused();
+    };
+    if (vv) { vv.addEventListener('resize', apply); vv.addEventListener('scroll', apply); }
+    window.addEventListener('resize', apply);
+    apply();
+    let focusTimer;
+    document.addEventListener('focusin', (e) => {
+      const el = e.target;
+      if (!el || !el.matches('input, textarea, select')) return;
+      clearTimeout(focusTimer);
+      focusTimer = setTimeout(centerFocused, 350);
+    });
+  }
+  function centerFocused() {
+    const el = document.activeElement;
+    if (!el || !el.matches || !el.matches('input, textarea, select')) return;
+    try { el.scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch (e) { el.scrollIntoView(); }
   }
 
   function bindNative() {
