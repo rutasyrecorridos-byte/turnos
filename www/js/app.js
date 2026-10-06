@@ -891,7 +891,11 @@
 
     // Hoja
     $('sheetClose').addEventListener('click', closeSheet);
-    $('sheetBackdrop').addEventListener('click', (e) => { if (e.target.id === 'sheetBackdrop') closeSheet(); });
+    // Cerrar solo si el toque empieza y termina fuera de la hoja: al abrirse el
+    // teclado la hoja se mueve, y si no, el dedo acababa cerrándola sin querer.
+    let downOutside = false;
+    $('sheetBackdrop').addEventListener('pointerdown', (e) => { downOutside = e.target.id === 'sheetBackdrop'; });
+    $('sheetBackdrop').addEventListener('click', (e) => { if (downOutside && e.target.id === 'sheetBackdrop') closeSheet(); downOutside = false; });
 
     // Teclado en pantalla: encoger la hoja y centrar el campo enfocado
     bindKeyboard();
@@ -907,22 +911,67 @@
   function bindKeyboard() {
     const root = document.documentElement;
     const vv = window.visualViewport;
-    const apply = () => {
-      const h = vv ? vv.height : window.innerHeight;
-      const kb = vv ? Math.max(0, window.innerHeight - vv.height - vv.offsetTop) : 0;
-      root.style.setProperty('--vph', h + 'px');
+    let kbNative = -1;              // alto comunicado por Android (-1 = aún sin dato)
+
+    const setVars = (kb) => {
+      kb = Math.max(0, Math.round(kb));
       root.style.setProperty('--kb', kb + 'px');
+      root.style.setProperty('--vph', Math.max(240, window.innerHeight - kb) + 'px');
+      document.body.classList.toggle('kb-open', kb > 80);
+    };
+
+    // 1) Android: el propio sistema nos dice cuánto mide el teclado.
+    const KB = plugin('Keyboard');
+    if (KB && KB.addListener) {
+      const onShow = (info) => {
+        let h = (info && info.keyboardHeight) || 0;
+        // por si llegara en píxeles físicos en vez de lógicos
+        if (h > window.innerHeight * 0.95 && window.devicePixelRatio > 1) h = h / window.devicePixelRatio;
+        kbNative = Math.min(h, window.innerHeight * 0.75);
+        setVars(kbNative);
+        setTimeout(centerFocused, 60);
+      };
+      const onHide = () => { kbNative = 0; setVars(0); };
+      try {
+        KB.addListener('keyboardWillShow', onShow);
+        KB.addListener('keyboardDidShow', onShow);
+        KB.addListener('keyboardWillHide', onHide);
+        KB.addListener('keyboardDidHide', onHide);
+      } catch (e) { kbNative = -1; }
+      try { if (KB.setResizeMode) KB.setResizeMode({ mode: 'none' }); } catch (e) { }
+      try { if (KB.setAccessoryBarVisible) KB.setAccessoryBarVisible({ isVisible: false }); } catch (e) { }
+    }
+
+    // 2) Respaldo para el navegador y para móviles que sí redimensionan la ventana.
+    const apply = () => {
+      if (kbNative > 0) return;                    // manda el dato de Android
+      const kb = vv ? Math.max(0, window.innerHeight - vv.height - vv.offsetTop) : 0;
+      setVars(kb);
       if (kb > 120) centerFocused();
     };
     if (vv) { vv.addEventListener('resize', apply); vv.addEventListener('scroll', apply); }
     window.addEventListener('resize', apply);
     apply();
+
+    // 3) Último recurso: si el teclado está abierto y nadie nos lo ha dicho,
+    //    reservamos sitio al enfocar un campo dentro de la hoja.
     let focusTimer;
     document.addEventListener('focusin', (e) => {
       const el = e.target;
-      if (!el || !el.matches('input, textarea, select')) return;
+      if (!el || !el.matches || !el.matches('input, textarea, select')) return;
+      if (kbNative < 0 && (!vv || Math.abs(vv.height - window.innerHeight) < 40)) {
+        setVars(Math.round(window.innerHeight * 0.46));   // altura típica de un teclado
+      }
       clearTimeout(focusTimer);
-      focusTimer = setTimeout(centerFocused, 350);
+      focusTimer = setTimeout(centerFocused, 300);
+    });
+    document.addEventListener('focusout', () => {
+      clearTimeout(focusTimer);
+      focusTimer = setTimeout(() => {
+        const a = document.activeElement;
+        if (a && a.matches && a.matches('input, textarea, select')) return;
+        if (kbNative <= 0) setVars(vv ? Math.max(0, window.innerHeight - vv.height - vv.offsetTop) : 0);
+      }, 250);
     });
   }
   function centerFocused() {

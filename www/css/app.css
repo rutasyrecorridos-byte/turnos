@@ -263,6 +263,7 @@ textarea.input { resize: none; min-height: 84px; }
   animation: up .22s cubic-bezier(.2,.8,.2,1);
 }
 @keyframes up { from { transform: translateY(40px); opacity: .4; } to { transform: none; opacity: 1; } }
+.sheet .input, .sheet textarea.input, .sheet .select { scroll-margin: 90px 0; }
 .sheet-grip { width: 40px; height: 4px; background: var(--surface-3); border-radius: 2px; margin: 4px auto 8px; }
 .sheet-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
 .sheet-head h3 { margin: 0; font-size: 18px; }
